@@ -9,10 +9,8 @@ def find_contours(img_frame):
     :return: image with contours and the contours matrix
     """
     img = cv.cvtColor(img_frame, cv.COLOR_BGR2GRAY)
-    cv.imwrite("sample1.png", img)
     frame_thresh = cv.adaptiveThreshold(img,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,\
             cv.THRESH_BINARY,11,2)
-    cv.imwrite("sample2.png", frame_thresh)
     contours, _ = cv.findContours(frame_thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     return contours
 
