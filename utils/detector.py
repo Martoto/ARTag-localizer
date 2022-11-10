@@ -33,6 +33,27 @@ def draw_grid(grid_shape, color=(255, 255, 255), thickness=1):
     cv.imwrite("grid1.png", img)
     return img
 
+def return_grid(grid = (2, 2), pos = (0, 0), res = (640, 640)):
+    """ get grid in which (pos_x, pos_y) is in
+    :param (cols, rows) number of grid cells (pos_x,pos_y) position to identify. (height, width) = resolution
+    :return: matrix identifying the position of the point
+    """
+    h, w = res[0],res[1]
+    cols, rows = grid[0],grid[1]
+    x, y = pos[0],pos[1]
+
+    cell_h, cell_w = h/rows, w/cols
+
+    grid_array = np.zeros((cols,rows), dtype=int)
+    x, y = (int)(x/cell_w), (int)(y/cell_h)
+    grid_array[x, y] = 1
+    return np.flip(grid_array,0)
+
+
+    
+
+
+
 def get_tag_orientation(img_frame):
     """ get orientation from the image frame
     :param img_frame: image frame from the video
