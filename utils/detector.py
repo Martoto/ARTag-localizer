@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-
+import math
 
 def find_contours(img_frame):
     """
@@ -14,10 +14,10 @@ def find_contours(img_frame):
     contours, _ = cv.findContours(frame_thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     return contours
 
-def draw_grid(grid_shape, color=(255, 255, 255), thickness=1):
-    img = np.zeros((1536, 2304,  1), dtype = "uint8")
+def draw_grid(grid_shape, scale, color=(255, 255, 255), thickness=2):
+    img = np.zeros((scale[1],scale[0], 1), dtype=np.uint8)
     h, w, _ = img.shape
-    rows, cols = grid_shape
+    cols, rows = grid_shape
     dy, dx = h / rows, w / cols
 
     # draw vertical lines
@@ -30,7 +30,6 @@ def draw_grid(grid_shape, color=(255, 255, 255), thickness=1):
         y = int(round(y))
         cv.line(img, (0, y), (w, y), color=color, thickness=thickness)
 
-    cv.imwrite("grid1.png", img)
     return img
 
 def return_grid(grid = (2, 2), pos = (0, 0), res = (640, 640)):
@@ -38,20 +37,41 @@ def return_grid(grid = (2, 2), pos = (0, 0), res = (640, 640)):
     :param (cols, rows) number of grid cells (pos_x,pos_y) position to identify. (height, width) = resolution
     :return: matrix identifying the position of the point
     """
-    h, w = res[0],res[1]
+    
+    w , h = res[1],res[0]
     cols, rows = grid[0],grid[1]
     x, y = pos[0],pos[1]
 
     cell_h, cell_w = h/rows, w/cols
 
-    grid_array = np.zeros((cols,rows), dtype=int)
+    #grid_array = np.zeros((cols,rows), dtype=int)
     x, y = (int)(x/cell_w), (int)(y/cell_h)
-    grid_array[x, y] = 1
-    return np.flip(grid_array,0)
+    #grid_array[x, y] = 1
+    return (x,y)
 
+def distFromCell(pos, res, cell, grid):
+    w , h = res[1],res[0]
+    cols, rows = grid[0],grid[1]
+
+    cell_h, cell_w = h/rows, w/cols
+    cell_pos = (cell_w*cell[0], cell_h*cell[1])
+
+    return (cell_pos[0] - pos[0],cell_pos[1] - pos[1])
 
     
-
+    
+def angle_of_vectors(vec1,vec2):
+    a,b = vec1
+    c,d = vec2
+    dotProduct = a*c + b*d
+        # for three dimensional simply add dotProduct = a*c + b*d  + e*f 
+    modOfVector1 = math.sqrt( a*a + b*b)*math.sqrt(c*c + d*d) 
+        # for three dimensional simply add modOfVector = math.sqrt( a*a + b*b + e*e)*math.sqrt(c*c + d*d +f*f) 
+    angle = dotProduct/modOfVector1
+    print("Cosθ =",angle)
+    angleInDegree = math.degrees(math.acos(angle))
+    print("θ =",angleInDegree,"°")
+     
 
 
 def get_tag_orientation(img_frame):
