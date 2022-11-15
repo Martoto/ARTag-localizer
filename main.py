@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import math
+import json
 
 from copy import deepcopy
 # Import custom function scripts
@@ -14,6 +15,17 @@ ref_dist = 10 #in centimeters
 ref_dimension = 400
 p = 0.147
 grid = (10,9)
+
+
+pos = {
+    "pos": [0, 0],
+    "cell": [ 0,0],
+    "error": [0, 0],
+    "degrees": 0,
+    "heading": 0,
+    "ang_err": 0
+  }
+
 
 
 def warpFrame(video_frame):
@@ -53,7 +65,7 @@ def processFrame(video_frame):
                     #print(contour_poly_curve)
                     p1, p2 = contour_poly_curve[2][0], contour_poly_curve[3][0]
                     vec = (p1[0] - p2[0], p1[1] - p2[1])
-                    detector.angle_of_vectors(vec,(1,0))
+                    ang = detector.angle_of_vectors(vec,(1,0))
                     mat, _ = si.get_h_matrices(contour_poly_curve, ref_dimension, ref_dimension)
                     vf_warp = cv2.warpPerspective(video_frame, mat, (ref_dimension, ref_dimension))
                     _,vf_warp = cv2.threshold(cv2.cvtColor(vf_warp, cv2.COLOR_BGR2GRAY), 150, 255, 0)
@@ -79,8 +91,8 @@ def processFrame(video_frame):
                     # Display tag ID on each frame
 
                     #print(detector.return_grid((9,10),(x,y),(cols,rows)))
-                    return video_frame, (x,y)
-    return video_frame, (0,0)
+                    return video_frame, (x,y), ang, orientation
+    return video_frame, (0,0), 0, 0
                     
 
 
@@ -103,7 +115,7 @@ if __name__ == '__main__':
         
         vf_original = deepcopy(video_frame)
         vf_original = warpFrame(vf_original)
-        vf_original, (x,y) = processFrame(vf_original)
+        vf_original, (x,y), ang, orientation = processFrame(vf_original)
         rows, cols, _ = vf_original.shape 
         mask = cv2.bitwise_not(detector.draw_grid(grid, (cols,rows)))   
         vf_original = cv2.bitwise_and(vf_original,vf_original,mask=mask)
@@ -112,7 +124,16 @@ if __name__ == '__main__':
         cell = detector.return_grid(grid,(x,y),(cols,rows))
         error = detector.distFromCell((x,y),(cols,rows),cell,grid)
         vf_original = resizeFrame(vf_original)
+
         #print((p*x,p*y), p*error[0], p*error[1])
+
+        pos.pos = (p*x,p*y)
+        pos.erros = (p*error[0], p*error[1])
+        pos.cell = cell
+        pos.degrees = ang
+        pos.heading = orientation
+        pos.ang_error = 90*orientation - ang
+
         cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/static/img/feed.png', vf_original)
         
 
