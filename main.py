@@ -7,10 +7,6 @@ import socket
 
 from copy import deepcopy
 
-ESP_server = socket.socket()
-ESP_server.bind(("0.0.0.0", 5072))
-ESP_server.listen(1)
-
 
 
  # Define constants for entire project
@@ -58,7 +54,7 @@ def processFrame(video_frame):
         contour_area = cv2.contourArea(contour)
         contour_poly_curve = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
         if 1000 < contour_area < 8000 and len(contour_poly_curve) == 4:
-                x, y, w, h = cv2.boundingRect(contour)
+                x, y, w, h = cv2.boundingRect(contour_poly_curve)
                 x = x + w/2
                 y = y + h/2
                 ratio= float(w)/h
@@ -70,9 +66,10 @@ def processFrame(video_frame):
                     vec = (p1[0] - p2[0], p1[1] - p2[1])
                     ang = detector.angle_of_vectors(vec,(1,0))
                     mat, _ = si.get_h_matrices(contour_poly_curve, ref_dimension, ref_dimension)
-                    vf_warp = cv2.warpPerspective(video_frame, mat, (ref_dimension, ref_dimension))
+                    vf_warp = cv2.transpose(cv2.warpPerspective(video_frame, mat, (ref_dimension, ref_dimension)))
+                    #espelha o arTag. 
                     _,vf_warp = cv2.threshold(cv2.cvtColor(vf_warp, cv2.COLOR_BGR2GRAY), 150, 255, 0)
-                    #cv2.imwrite("sampleWarp.png",vf_warp)
+                    cv2.imwrite("sampleWarp.png",vf_warp)
                     # Get orientation and tag ID
 
                     orientation = detector.get_tag_orientation(vf_warp)
@@ -105,9 +102,6 @@ if __name__ == '__main__':
     # Create cv objects for video and Mask image
 
 
-    PC_link, addr = ESP_server.accept()
-    PC_link.setblocking(0)
-    #print('client connected from', addr)
 
     tag = cv2.VideoCapture(0)
     tag.set(cv2.CAP_PROP_FRAME_WIDTH , 2304)
@@ -134,7 +128,7 @@ if __name__ == '__main__':
         cell = detector.return_grid(grid,(x,y),(cols,rows))
         error = detector.distFromCell((x,y),(cols,rows),cell,grid)
         vf_original = resizeFrame(vf_original)
-
+        print(ang)
         #print((p*x,p*y), p*error[0], p*error[1])
 
         """
@@ -151,7 +145,7 @@ if __name__ == '__main__':
         out_z = round(ang)
 
         data = str((out_x, out_y, out_z))
-        print(orientation)
+        #print(orientation)
         #print(data)
 
         cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
