@@ -3,10 +3,13 @@ import cv2
 import numpy as np
 import math
 import json
+import socket
 
 from copy import deepcopy
-# Import custom function scripts
-from utils import detector, superimpose as si
+
+ESP_server = socket.socket()
+ESP_server.bind(("0.0.0.0", 5072))
+ESP_server.listen(1)
 
 
 
@@ -97,8 +100,15 @@ def processFrame(video_frame):
 
 
 if __name__ == '__main__':
-   
+   # Import custom function scripts
+    from utils import detector, superimpose as si
     # Create cv objects for video and Mask image
+
+
+    PC_link, addr = ESP_server.accept()
+    PC_link.setblocking(0)
+    #print('client connected from', addr)
+
     tag = cv2.VideoCapture(0)
     tag.set(cv2.CAP_PROP_FRAME_WIDTH , 2304)
     tag.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
@@ -127,15 +137,26 @@ if __name__ == '__main__':
 
         #print((p*x,p*y), p*error[0], p*error[1])
 
+        """
         pos.pos = (p*x,p*y)
         pos.erros = (p*error[0], p*error[1])
         pos.cell = cell
         pos.degrees = ang
         pos.heading = orientation
         pos.ang_error = 90*orientation - ang
+        """
 
-        cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/static/img/feed.png', vf_original)
-        
+        out_x = round(p*x)
+        out_y = round(p*y)
+        out_z = round(ang)
+
+        data = str((out_x, out_y, out_z))
+        print(orientation)
+        #print(data)
+
+        cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
+
+    #ESP_server.close()  # close the connection
 
 
                     
