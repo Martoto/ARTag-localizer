@@ -88,22 +88,22 @@ def get_tag_orientation(img_frame):
     orientations = {0: 0, 1: 0, 2: 0, 3: 0}
     # Orientation: North
     for i in range(100,300):
-        for j in range(100,125):
+        for j in range(100,150):
             orientations[0] += img_frame[i, j]
     # Orientation: East
-    for i in range(275,300):	
+    for i in range(250,300):	
         for j in range(100,300):
             orientations[1] += img_frame[i, j]
     # Orientation: South
     for i in range(100,300):
-        for j in range(275, 300):
+        for j in range(250, 300):
             orientations[2] += img_frame[i, j]
     # Orientation: West
-    for i in range(100,125):
+    for i in range(100,150):
         for j in range(100,300):
             orientations[3] += img_frame[i, j]
 
-    return max(orientations, key=orientations.get)
+    return min (orientations, key=orientations.get)
 
 
 def get_tag_id(img_frame, orientation):

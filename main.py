@@ -62,25 +62,35 @@ def processFrame(video_frame):
                 if ratio>=0.9 and ratio<=1.1 :
                     # Warp the video frame
                     #print(contour_poly_curve)
-                    p1, p2 = contour_poly_curve[2][0], contour_poly_curve[3][0]
-                    vec = (p1[0] - p2[0], p1[1] - p2[1])
-                    ang = detector.angle_of_vectors(vec,(1,0))
+                    if (contour_poly_curve[3][0][1] < contour_poly_curve[1][0][1]):	
+                        aux_curve = deepcopy(contour_poly_curve)
+                        contour_poly_curve[0], contour_poly_curve[1], contour_poly_curve[2], contour_poly_curve[3] = aux_curve[3],  aux_curve[0], aux_curve[1], aux_curve[2]
+
+
+                    
                     mat, _ = si.get_h_matrices(contour_poly_curve, ref_dimension, ref_dimension)
                     vf_warp = cv2.transpose(cv2.warpPerspective(video_frame, mat, (ref_dimension, ref_dimension)))
                     #espelha o arTag. 
                     _,vf_warp = cv2.threshold(cv2.cvtColor(vf_warp, cv2.COLOR_BGR2GRAY), 150, 255, 0)
                     cv2.imwrite("sampleWarp.png",vf_warp)
                     # Get orientation and tag ID
+                    
 
                     orientation = detector.get_tag_orientation(vf_warp)
+
+                    p1, p2 = contour_poly_curve[orientation-1][0], contour_poly_curve[orientation][0]
+                    vec = (abs(p1[0] - p2[0]), abs(p1[1] - p2[1]))
+                    ang = detector.angle_of_vectors(vec,(1,0))
+
                     #print(orientation)
                     #print(p, rows, p*rows)
                     # Draw the selected Contour matching the criteria fixed
 
                     cv2.drawContours(video_frame, [contour], 0, (0, 0, 225), 1)
                     cv2.drawMarker(video_frame,((int)(x),(int)(y)),(0, 0, 225))
-                    cv2.drawMarker(video_frame,(p1),(0, 255, 0))
-                    cv2.drawMarker(video_frame,(p2),(0, 255, 0))
+                    #cv2.drawMarker(video_frame,(contour_poly_curve[0][0]),(0, 255, 0))
+                    #cv2.drawMarker(video_frame,(contour_poly_curve[1][0]),(255, 0, 0))
+                    #cv2.drawMarker(video_frame,(p2),(0, 255, 0))
                     video_frame = cv2.line(video_frame, p1, p2,(0,255,0), thickness=3)
                     video_frame = cv2.line(video_frame, p1, (p1[0] + (int)(math.dist(p1,p2)),p1[1]),(0,255,0),thickness=3)
                     cv2.putText(video_frame, "( i, j ) = " + str(detector.return_grid((10,9),(x,y),(rows,cols))), (contour_poly_curve[0][0][0] - 50,
@@ -128,7 +138,6 @@ if __name__ == '__main__':
         cell = detector.return_grid(grid,(x,y),(cols,rows))
         error = detector.distFromCell((x,y),(cols,rows),cell,grid)
         vf_original = resizeFrame(vf_original)
-        print(ang)
         #print((p*x,p*y), p*error[0], p*error[1])
 
         """
@@ -140,15 +149,17 @@ if __name__ == '__main__':
         pos.ang_error = 90*orientation - ang
         """
 
-        out_x = round(p*x)
+        out_x   = round(p*x)
         out_y = round(p*y)
         out_z = round(ang)
 
         data = str((out_x, out_y, out_z))
         #print(orientation)
         #print(data)
+        print(ang)
 
-        cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
+        #cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
+        cv2.imwrite('./feed.png', vf_original)
 
     #ESP_server.close()  # close the connection
 
