@@ -77,24 +77,30 @@ def get_tag_orientation(img_frame):
     """ get orientation from the image frame
     :param img_frame: image frame from the video
     :return: orientation of the tag
+    edges = [(corners[1][0]-corners[0][0], corners[1][1]-corners[0][1]), 
+            (corners[2][0]-corners[1][0], corners[2][1]-corners[1][1]), 
+            (corners[2][0]-corners[3][0], corners[2][1]-corners[3][1]), 
+            (corners[3][0]-corners[0][0], corners[3][1]-corners[0][1])]	
+    
     """
+    corners = [(100, 100), (300, 100), (300, 300),  (100, 300)]
     # Check get_H_matrix function in superimpose for orientation notation
     orientations = {0: 0, 1: 0, 2: 0, 3: 0}
-    # Orientation: Bottom Right
-    for i in range(250, 301):
-        for j in range(250, 301):
+    # Orientation: North
+    for i in range(100,300):
+        for j in range(100,125):
             orientations[0] += img_frame[i, j]
-    # Orientation: Bottom Left
-    for i in range(250, 301):
-        for j in range(100, 151):
+    # Orientation: East
+    for i in range(275,300):	
+        for j in range(100,300):
             orientations[1] += img_frame[i, j]
-    # Orientation: Top Right
-    for i in range(100, 151):
-        for j in range(250, 301):
+    # Orientation: South
+    for i in range(100,300):
+        for j in range(275, 300):
             orientations[2] += img_frame[i, j]
-    # Orientation: Top Left
-    for i in range(100, 151):
-        for j in range(100, 151):
+    # Orientation: West
+    for i in range(100,125):
+        for j in range(100,300):
             orientations[3] += img_frame[i, j]
 
     return max(orientations, key=orientations.get)
