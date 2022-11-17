@@ -64,11 +64,9 @@ def angle_of_vectors(vec1,vec2):
     a,b = vec1
     c,d = vec2
     dotProduct = a*c + b*d
-        # for three dimensional simply add dotProduct = a*c + b*d  + e*f 
     modOfVector1 = math.sqrt( a*a + b*b)*math.sqrt(c*c + d*d) 
-        # for three dimensional simply add modOfVector = math.sqrt( a*a + b*b + e*e)*math.sqrt(c*c + d*d +f*f) 
     angle = dotProduct/modOfVector1
-    angleInDegree = math.degrees(math.acos(angle))
+    angleInDegree = math.degrees(math.acos(angle))*(vec1[0]/abs(vec1[0]))
     return angleInDegree
      
 

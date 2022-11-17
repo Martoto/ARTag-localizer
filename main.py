@@ -79,7 +79,7 @@ def processFrame(video_frame):
                     orientation = detector.get_tag_orientation(vf_warp)
 
                     p1, p2 = contour_poly_curve[orientation-1][0], contour_poly_curve[orientation][0]
-                    vec = (abs(p1[0] - p2[0]), abs(p1[1] - p2[1]))
+                    vec = (p2[0] - p1[0], p2[1] - p1[1])
                     ang = detector.angle_of_vectors(vec,(1,0))
 
                     #print(orientation)
@@ -107,11 +107,13 @@ def processFrame(video_frame):
 
 
 if __name__ == '__main__':
+    import server 
+
    # Import custom function scripts
     from utils import detector, superimpose as si
     # Create cv objects for video and Mask image
 
-
+    serverinstance = server.run_server()
 
     tag = cv2.VideoCapture(0)
     tag.set(cv2.CAP_PROP_FRAME_WIDTH , 2304)
@@ -149,11 +151,11 @@ if __name__ == '__main__':
         pos.ang_error = 90*orientation - ang
         """
 
-        out_x   = round(p*x)
+        out_x = round(p*x)
         out_y = round(p*y)
         out_z = round(ang)
 
-        data = str((out_x, out_y, out_z))
+        data = server.send_pose((out_x, out_y, out_z))
         #print(orientation)
         #print(data)
         print(ang)
