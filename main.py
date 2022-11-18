@@ -79,7 +79,7 @@ def processFrame(video_frame):
                     orientation = detector.get_tag_orientation(vf_warp)
 
                     p1, p2 = contour_poly_curve[orientation-1][0], contour_poly_curve[orientation][0]
-                    vec = (p2[0] - p1[0], p2[1] - p1[1])
+                    vec = (p1[0] - p2[0], p1[1] - p2[1])
                     ang = detector.angle_of_vectors(vec,(1,0))
 
                     #print(orientation)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
 
     serverinstance = server.run_server()
 
-    tag = cv2.VideoCapture(0)
+    tag = cv2.VideoCapture(1)
     tag.set(cv2.CAP_PROP_FRAME_WIDTH , 2304)
     tag.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
     mask = cv2.imread("./ArenaMask.png")
@@ -153,15 +153,18 @@ if __name__ == '__main__':
 
         out_x = round(p*x)
         out_y = round(p*y)
-        out_z = round(ang)
+        try:
+            out_z = round(255*((ang+360)%360)/360.0)
+        except ValueError:
+            out_z = 0
 
-        data = server.send_pose((out_x, out_y, out_z))
+        server.send_pose((out_x, out_y, out_z))
         #print(orientation)
         #print(data)
-        print(ang)
+        print((out_x, out_y, out_z))
 
-        #cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
-        cv2.imwrite('./feed.png', vf_original)
+        cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
+        #cv2.imwrite('./feed.png', vf_original)
 
     #ESP_server.close()  # close the connection
 
