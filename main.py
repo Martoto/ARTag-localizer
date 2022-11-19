@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Import standard libraries
 import cv2
 import numpy as np
