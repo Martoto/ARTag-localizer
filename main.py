@@ -75,7 +75,7 @@ def processFrame(video_frame):
                     vf_warp = cv2.transpose(cv2.warpPerspective(video_frame, mat, (ref_dimension, ref_dimension)))
                     #espelha o arTag. 
                     _,vf_warp = cv2.threshold(cv2.cvtColor(vf_warp, cv2.COLOR_BGR2GRAY), 150, 255, 0)
-                    cv2.imwrite("sampleWarp.png",vf_warp)
+                    #cv2.imwrite("sampleWarp.png",vf_warp)
                     # Get orientation and tag ID
                     
 
@@ -121,12 +121,11 @@ if __name__ == '__main__':
 
     serverinstance = server.run_server()
 
-    tag = cv2.VideoCapture(1)
+    tag = cv2.VideoCapture(2)
     tag.set(cv2.CAP_PROP_FRAME_WIDTH , 2304)
     tag.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
-    mask = cv2.imread("./ArenaMask.png")
-    video_frame = cv2.imread("./sample.png")
-    h_mat = np.load("./h_mat.npy")
+    #video_frame = cv2.imread("./sample.png")
+    h_mat = np.load("/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/RobinhoImageProcessing/h_mat.npy")
 
     ACCLEN = 3
     acc = [None] * ACCLEN
