@@ -6,6 +6,7 @@ import numpy as np
 import math
 import json
 import socket
+import statistics
 
 from copy import deepcopy
 
@@ -107,6 +108,9 @@ def processFrame(video_frame):
     return video_frame, (0,0), 0, 0
                     
 
+def dang(a, b):
+    k = (a-b) %360 
+    return min(360-k, k)
 
 if __name__ == '__main__':
     import server 
@@ -123,6 +127,9 @@ if __name__ == '__main__':
     mask = cv2.imread("./ArenaMask.png")
     video_frame = cv2.imread("./sample.png")
     h_mat = np.load("./h_mat.npy")
+
+    ACCLEN = 3
+    acc = [None] * ACCLEN
 
     while True:
         # Read the video frame by frame
@@ -153,22 +160,41 @@ if __name__ == '__main__':
         pos.ang_error = 90*orientation - ang
         """
 
-        out_x = round(p*x)
-        out_y = round(p*y)
-        try:
-            out_z = round(255*((ang+360)%360)/360.0)
-        except ValueError:
-            out_z = 0
+        pose = (p*x, p*y, ang)
+        print(pose)
 
-        server.send_pose((out_x, out_y, out_z))
-        #print(orientation)
-        #print(data)
-        print((out_x, out_y, out_z))
+        if (math.isnan(ang)) or ((not x) and (not y) and (not ang)):
+            pose = None
 
+        acc.append(pose)
+
+        if acc[-1] and acc[-2] and acc[-3]:
+            x_stdev = statistics.stdev([acc[-1][0],acc[-2][0],acc[-3][0],])
+            y_stdev = statistics.stdev([acc[-1][1],acc[-2][1],acc[-3][1],])
+            # https://en.wikipedia.org/wiki/Circular_mean
+            ang_x = math.sin(math.radians((acc[-1][2]+acc[-2][2]+acc[-3][2])/3))
+            ang_y = math.cos(math.radians((acc[-1][2]+acc[-2][2]+acc[-3][2])/3))
+            ang_mean = math.degrees(math.atan2(ang_x, ang_y))
+            print("a:", ang_x, ang_y, ang_mean)
+            max_ang_d = max(dang(acc[-1][2], ang_mean), dang(acc[-2][2], ang_mean), dang(acc[-3][2], ang_mean))
+            print("math: ", x_stdev, y_stdev, ang_mean, max_ang_d)
+            
+            if x_stdev < 5.0 and y_stdev < 5.0 and max_ang_d < 4.0:
+                x = statistics.mean([acc[-1][0],acc[-2][0],acc[-3][0],])
+                y = statistics.mean([acc[-1][1],acc[-2][1],acc[-3][1],])
+                ang = ang_mean
+                out_x = round(x)
+                out_y = round(y)
+                out_z = round(255*((ang+360)%360)/360.0)
+
+                out = (out_x, out_y, out_z)
+                print("sending: ", out)
+                server.send_pose(out)
+
+        acc = acc[-3:]
         cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
+        print()
         #cv2.imwrite('./feed.png', vf_original)
 
     #ESP_server.close()  # close the connection
 
-
-                    
