@@ -89,14 +89,14 @@ def processFrame(video_frame):
                     #print(p, rows, p*rows)
                     # Draw the selected Contour matching the criteria fixed
 
-                    cv2.drawContours(video_frame, [contour], 0, (0, 0, 225), 1)
-                    cv2.drawMarker(video_frame,((int)(x),(int)(y)),(0, 0, 225))
+                    video_frame = cv2.drawContours(video_frame, [contour], 0, (0, 0, 225), 1)
+                    video_frame = cv2.drawMarker(video_frame,((int)(x),(int)(y)),(0, 0, 225))
                     #cv2.drawMarker(video_frame,(contour_poly_curve[0][0]),(0, 255, 0))
                     #cv2.drawMarker(video_frame,(contour_poly_curve[1][0]),(255, 0, 0))
                     #cv2.drawMarker(video_frame,(p2),(0, 255, 0))
                     video_frame = cv2.line(video_frame, p1, p2,(0,255,0), thickness=3)
                     video_frame = cv2.line(video_frame, p1, (p1[0] + (int)(math.dist(p1,p2)),p1[1]),(0,255,0),thickness=3)
-                    cv2.putText(video_frame, "( i, j ) = " + str(detector.return_grid((10,9),(x,y),(rows,cols))), (contour_poly_curve[0][0][0] - 50,
+                    cv2.putText(video_frame, str(contour_area) + " - ( i, j ) = " + str(detector.return_grid((10,9),(x,y),(rows,cols))), (contour_poly_curve[0][0][0] - 50,
                                                                contour_poly_curve[0][0][1] - 50),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 225), 2, cv2.LINE_AA)
                    
