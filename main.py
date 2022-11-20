@@ -56,7 +56,7 @@ def processFrame(video_frame):
     for contour in contours:
         contour_area = cv2.contourArea(contour)
         contour_poly_curve = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
-        if 1000 < contour_area < 8000 and len(contour_poly_curve) == 4:
+        if 3750 < contour_area < 4500 and len(contour_poly_curve) == 4:
                 x, y, w, h = cv2.boundingRect(contour_poly_curve)
                 x = x + w/2
                 y = y + h/2
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     serverinstance = server.run_server()
 
-    tag = cv2.VideoCapture(2)
+    tag = cv2.VideoCapture(0)
     tag.set(cv2.CAP_PROP_FRAME_WIDTH , 2304)
     tag.set(cv2.CAP_PROP_FRAME_HEIGHT, 1536)
     #video_frame = cv2.imread("./sample.png")
