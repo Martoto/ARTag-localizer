@@ -184,7 +184,7 @@ if __name__ == '__main__':
                 ang = ang_mean
                 out_x = round(x)
                 out_y = round(y)
-                out_z = round(255*((ang+360)%360)/360.0)
+                out_z = round((256*((ang+360)%360)/360.0)%256)
 
                 out = (out_x, out_y, out_z)
                 print("sending: ", out)
