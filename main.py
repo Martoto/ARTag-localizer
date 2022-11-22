@@ -56,7 +56,7 @@ def processFrame(video_frame):
     for contour in contours:
         contour_area = cv2.contourArea(contour)
         contour_poly_curve = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
-        if 3750 < contour_area < 4500 and len(contour_poly_curve) == 4:
+        if 3750 < contour_area < 10000 and len(contour_poly_curve) == 4:
                 x, y, w, h = cv2.boundingRect(contour_poly_curve)
                 x = x + w/2
                 y = y + h/2
@@ -82,7 +82,7 @@ def processFrame(video_frame):
                     orientation = detector.get_tag_orientation(vf_warp)
 
                     p1, p2 = contour_poly_curve[orientation-1][0], contour_poly_curve[orientation][0]
-                    vec = (p1[0] - p2[0], p1[1] - p2[1])
+                    vec = (p2[0] - p1[0], p2[1] - p1[1])
                     ang = detector.angle_of_vectors(vec,(1,0))
 
                     #print(orientation)
@@ -96,7 +96,7 @@ def processFrame(video_frame):
                     #cv2.drawMarker(video_frame,(p2),(0, 255, 0))
                     video_frame = cv2.line(video_frame, p1, p2,(0,255,0), thickness=3)
                     video_frame = cv2.line(video_frame, p1, (p1[0] + (int)(math.dist(p1,p2)),p1[1]),(0,255,0),thickness=3)
-                    cv2.putText(video_frame, str(contour_area) + " - ( i, j ) = " + str(detector.return_grid((10,9),(x,y),(rows,cols))), (contour_poly_curve[0][0][0] - 50,
+                    cv2.putText(video_frame, str(contour_area) + " " + str(detector.return_grid((10,9),(x,y),(rows,cols))) + " " + f"({p*x:.1f}, {p*y:.1f}, {ang:.1f})".format(p*x, p*y, ang), (contour_poly_curve[0][0][0] - 50,
                                                                contour_poly_curve[0][0][1] - 50),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 225), 2, cv2.LINE_AA)
                    
@@ -158,6 +158,12 @@ if __name__ == '__main__':
         pos.heading = orientation
         pos.ang_error = 90*orientation - ang
         """
+        if (ang > 0):
+            ang = 360 - ang
+        else:
+            ang *= -1
+
+
 
         pose = (p*x, p*y, ang)
         print(pose)
@@ -174,9 +180,9 @@ if __name__ == '__main__':
             ang_x = math.sin(math.radians((acc[-1][2]+acc[-2][2]+acc[-3][2])/3))
             ang_y = math.cos(math.radians((acc[-1][2]+acc[-2][2]+acc[-3][2])/3))
             ang_mean = math.degrees(math.atan2(ang_x, ang_y))
-            print("a:", ang_x, ang_y, ang_mean)
+            #print("a:", ang_x, ang_y, ang_mean)
             max_ang_d = max(dang(acc[-1][2], ang_mean), dang(acc[-2][2], ang_mean), dang(acc[-3][2], ang_mean))
-            print("math: ", x_stdev, y_stdev, ang_mean, max_ang_d)
+            #print("math: ", x_stdev, y_stdev, ang_mean, max_ang_d)
             
             if x_stdev < 5.0 and y_stdev < 5.0 and max_ang_d < 4.0:
                 x = statistics.mean([acc[-1][0],acc[-2][0],acc[-3][0],])
@@ -189,10 +195,13 @@ if __name__ == '__main__':
                 out = (out_x, out_y, out_z)
                 print("sending: ", out)
                 server.send_pose(out)
+            else:
+                print('WARNING: Outlier value detected')
+        else:
+            print('ERROR: No TAG detected')
 
         acc = acc[-3:]
         cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
-        print()
         #cv2.imwrite('./feed.png', vf_original)
 
     #ESP_server.close()  # close the connection
