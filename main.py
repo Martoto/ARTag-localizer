@@ -15,6 +15,9 @@ from copy import deepcopy
  # Define constants for entire project
 ref_dist = 10 #in centimeters
 ref_dimension = 400
+t_y = 80
+p_y = 1300
+h_y = 1500
 p = 0.147
 grid = (10,9)
 
@@ -60,6 +63,7 @@ def processFrame(video_frame):
                 x, y, w, h = cv2.boundingRect(contour_poly_curve)
                 x = x + w/2
                 y = y + h/2
+                true_y = y + (t_y*((p_y - y)/h_y))
                 ratio= float(w)/h
                 #print(x, y)
                 if ratio>=0.9 and ratio<=1.1 :
@@ -94,9 +98,10 @@ def processFrame(video_frame):
                     #cv2.drawMarker(video_frame,(contour_poly_curve[0][0]),(0, 255, 0))
                     #cv2.drawMarker(video_frame,(contour_poly_curve[1][0]),(255, 0, 0))
                     #cv2.drawMarker(video_frame,(p2),(0, 255, 0))
+                    video_frame = cv2.line(video_frame, ((int)(x),(int)(y)), ((int)(x),(int)(true_y)),(255,0,0), thickness=2)
                     video_frame = cv2.line(video_frame, p1, p2,(0,255,0), thickness=3)
                     video_frame = cv2.line(video_frame, p1, (p1[0] + (int)(math.dist(p1,p2)),p1[1]),(0,255,0),thickness=3)
-                    cv2.putText(video_frame, str(contour_area) + " " + str(detector.return_grid((10,9),(x,y),(rows,cols))) + " " + f"({p*x:.1f}, {p*y:.1f}, {ang:.1f})".format(p*x, p*y, ang), (contour_poly_curve[0][0][0] - 50,
+                    cv2.putText(video_frame, str(detector.return_grid((10,9),(x,y),(rows,cols))) + " " + f"({p*x:.1f}, {p*y:.1f}, {ang:.1f})".format(p*x, p*y, ang), (contour_poly_curve[0][0][0] - 50,
                                                                contour_poly_curve[0][0][1] - 50),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 225), 2, cv2.LINE_AA)
                    
@@ -193,7 +198,7 @@ if __name__ == '__main__':
                 out_z = round((256*((ang+360)%360)/360.0)%256)
 
                 out = (out_x, out_y, out_z)
-                print("sending: ", out)
+                print("sending: ", out, (hex(out_x), hex(out_y), hex(out_z)))
                 server.send_pose(out)
             else:
                 print('WARNING: Outlier value detected')

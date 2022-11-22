@@ -14,7 +14,7 @@ def find_contours(img_frame):
     contours, _ = cv.findContours(frame_thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     return contours
 
-def draw_grid(grid_shape, scale, color=(255, 255, 255), thickness=2):
+def draw_grid(grid_shape, scale, color=(255, 255, 255), thickness=1):
     img = np.zeros((scale[1],scale[0], 1), dtype=np.uint8)
     h, w, _ = img.shape
     cols, rows = grid_shape
