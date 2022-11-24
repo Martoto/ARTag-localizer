@@ -101,8 +101,8 @@ def processFrame(video_frame):
                     video_frame = cv2.line(video_frame, ((int)(x),(int)(y)), ((int)(x),(int)(true_y)),(255,0,0), thickness=2)
                     video_frame = cv2.line(video_frame, p1, p2,(0,255,0), thickness=3)
                     video_frame = cv2.line(video_frame, p1, (p1[0] + (int)(math.dist(p1,p2)),p1[1]),(0,255,0),thickness=3)
-                    cv2.putText(video_frame, f"({p*x:.1f}, {p*y:.1f}/{p*true_y:.1f}, {ang:.1f})".format(p*x, p*y, ang), (contour_poly_curve[0][0][0] - 50,
-                                                               contour_poly_curve[0][0][1] - 50),
+                    cv2.putText(video_frame, f"({p*x:.1f}, {p*y:.1f})".format(p*x, p*y), (contour_poly_curve[0][0][0] - 50,
+                                                               contour_poly_curve[0][0][1] + 50),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 225), 2, cv2.LINE_AA)
                    
                     #tag_id = detector.get_tag_id(vf_warp_gray, orientation)
