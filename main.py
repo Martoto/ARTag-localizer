@@ -101,7 +101,7 @@ def processFrame(video_frame):
                     video_frame = cv2.line(video_frame, ((int)(x),(int)(y)), ((int)(x),(int)(true_y)),(255,0,0), thickness=2)
                     video_frame = cv2.line(video_frame, p1, p2,(0,255,0), thickness=3)
                     video_frame = cv2.line(video_frame, p1, (p1[0] + (int)(math.dist(p1,p2)),p1[1]),(0,255,0),thickness=3)
-                    cv2.putText(video_frame, str(detector.return_grid((10,9),(x,y),(rows,cols))) + " " + f"({p*x:.1f}, {p*y:.1f}, {ang:.1f})".format(p*x, p*y, ang), (contour_poly_curve[0][0][0] - 50,
+                    cv2.putText(video_frame, f"({p*x:.1f}, {p*y:.1f}/{p*true_y:.1f}, {ang:.1f})".format(p*x, p*y, ang), (contour_poly_curve[0][0][0] - 50,
                                                                contour_poly_curve[0][0][1] - 50),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 225), 2, cv2.LINE_AA)
                    
@@ -109,7 +109,7 @@ def processFrame(video_frame):
                     # Display tag ID on each frame
 
                     #print(detector.return_grid((9,10),(x,y),(cols,rows)))
-                    return video_frame, (x,y), ang, orientation
+                    return video_frame, (x,true_y), ang, orientation
     return video_frame, (0,0), 0, 0
                     
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
             max_ang_d = max(dang(acc[-1][2], ang_mean), dang(acc[-2][2], ang_mean), dang(acc[-3][2], ang_mean))
             #print("math: ", x_stdev, y_stdev, ang_mean, max_ang_d)
             
-            if x_stdev < 5.0 and y_stdev < 5.0 and max_ang_d < 4.0:
+            if x_stdev < 2.0 and y_stdev < 2.0 and max_ang_d < 2.0:
                 x = statistics.mean([acc[-1][0],acc[-2][0],acc[-3][0],])
                 y = statistics.mean([acc[-1][1],acc[-2][1],acc[-3][1],])
                 ang = ang_mean
@@ -197,8 +197,8 @@ if __name__ == '__main__':
                 out_y = round(y)
                 out_z = round((256*((ang+360)%360)/360.0)%256)
 
-                out = (out_x, out_y, out_z)
-                print("sending: ", out, (hex(out_x), hex(out_y), hex(out_z)))
+                out = [out_x, out_y, out_z]
+                print("sending: ", bytes([0x0] + out).hex())
                 server.send_pose(out)
             else:
                 print('WARNING: Outlier value detected')
