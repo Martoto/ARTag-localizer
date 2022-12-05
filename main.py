@@ -213,7 +213,16 @@ if __name__ == '__main__':
             print('ERROR: No TAG detected')
 
         acc = acc[-3:]
-        cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', vf_original)
+        
+        imghsv = cv2.cvtColor(vf_original, cv2.COLOR_BGR2HSV).astype("float32")
+        (h, s, v) = cv2.split(imghsv)
+        s = s*3
+        s = np.clip(s,0,255)
+        imghsv = cv2.merge([h,s,v])
+        imgbgr = cv2.cvtColor(imghsv.astype("uint8"), cv2.COLOR_HSV2BGR)
+
+
+        cv2.imwrite('/home/arena/Documents/GitHub/Robinho/Robinho_Webapp/images/feed.png', imgbgr)
         #cv2.imwrite('./feed.png', vf_original)
 
     #ESP_server.close()  # close the connection
