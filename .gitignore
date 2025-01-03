@@ -1,3 +1,1 @@
-__pycache__/server.cpython-310.pyc
-utils/__pycache__/detector.cpython-310.pyc
-utils/__pycache__/superimpose.cpython-310.pyc
+*.pyc
