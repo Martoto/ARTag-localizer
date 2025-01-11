@@ -14,7 +14,8 @@ if __name__ == '__main__':
     img_warped = cv2.warpPerspective(img, h_mat, (rows, rows))
     cv2.imwrite("warpOutput.png", img_warped)
 
-"""
+
+def detect_grid(img, contours):
     for contour in contours:
         i = i + 1
         contour_poly_curve = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
@@ -24,4 +25,3 @@ if __name__ == '__main__':
             img_warped = cv2.transpose(img_warped)
             cv2.drawContours(img, [contour], 0, (0, 0, 225), 1)
             print(h_mat)
-"""
